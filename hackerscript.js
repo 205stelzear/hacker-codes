@@ -22,7 +22,7 @@ function resetSize(){
 	windowMiddle = Math.round(c.height / 2);
 	
 	// x below is the x coordinate
-	// 0 = y coordinate of the drop
+	// value given to drops[x] is the y coordinate of the drop
 	for(var x = drops.length; x < numberOfColumns; x++){
 		drops[x] = Math.round(Math.random() * -100);
 	}
@@ -37,7 +37,7 @@ resetSize();
 
 window.addEventListener("resize", resetSize);
 
-var string = undefined;
+var userCode = undefined;
 
 var padding = 2;
 
@@ -49,9 +49,10 @@ function draw(){
 	ctx.fillStyle = "rgba(0, 0, 0, 0.09)";
 	ctx.fillRect(0, 0, c.width, c.height);
 	
-	var textColor = string == "INCAPABLE DE TROUVER" ? "#c10000" : "#0F0";
+	// green text if valid string, red if bad string
+	var textColor = userCode == undefined || !userCode.match("^!.*!$") ? "#0F0" : "#c10000";
 	
-	ctx.fillStyle = textColor; //green text
+	ctx.fillStyle = textColor;
 	ctx.font = font_size + "px monospace";
 	
 	var dropsMiddle = (drops.length % 2 == 0 ? drops.length : drops.length - 1) / 2;
@@ -62,17 +63,17 @@ function draw(){
 		// a random character to print
 		var text = charset[Math.floor(Math.random() * charset.length)];
 		
-		if(string != undefined){
-			var stringMiddle = (string.length % 2 == 0 ? string.length : string.length + 1) / 2;
+		if(userCode != undefined){
+			var userCodeMiddle = (userCode.length % 2 == 0 ? userCode.length : userCode.length + 1) / 2;
 			
-			var lowerMiddle = (dropsMiddle - stringMiddle);
-			var upperMiddle = (dropsMiddle + stringMiddle);
+			var lowerMiddle = (dropsMiddle - userCodeMiddle);
+			var upperMiddle = (dropsMiddle + userCodeMiddle);
 		}
 		
-		if(string != undefined && i > lowerMiddle - padding && i <= upperMiddle + padding && drops[i] == Math.round(windowMiddle / font_size)){
+		if(userCode != undefined && i > lowerMiddle - padding && i <= upperMiddle + padding && drops[i] == Math.round(windowMiddle / font_size)){
 			
 			if(i > lowerMiddle && i <= upperMiddle){
-				ctx.fillText(string.charAt(i - dropsMiddle + stringMiddle - 1), i * font_size, drops[i] * font_size);
+				ctx.fillText(userCode.charAt(i - dropsMiddle + userCodeMiddle - 1), i * font_size, drops[i] * font_size);
 			}
 			
 		}
@@ -80,7 +81,7 @@ function draw(){
 			
 			ctx.fillText(text, i * font_size, drops[i] * font_size);
 			
-			var shouldRandom = stringMiddle != undefined && i > lowerMiddle && i <= upperMiddle
+			var shouldRandom = userCodeMiddle != undefined && i > lowerMiddle && i <= upperMiddle;
 			
 			// sending the drop back to the top randomly after it has crossed the screen
 			// adding a randomness to the reset to make the drops scattered on the Y axis
@@ -101,15 +102,9 @@ var interval = setInterval(draw, 50);
 
 var codeMap;
 
-var xobj = new XMLHttpRequest();
-xobj.overrideMimeType("application/json");
-xobj.open('GET', './codes.json', true);
-xobj.onreadystatechange = function () {
-	if (xobj.readyState == 4 && xobj.status == "200") {
-		codeMap = JSON.parse(xobj.responseText);
-	}
-};
-xobj.send(null);
+fetch("./codes.json")
+	.then(response => response.json())
+	.then(parsed => codeMap = parsed);
 
 function codeInput(e){
 	
@@ -121,10 +116,10 @@ function codeInput(e){
 			
 			e.value = "";
 			
-			string = codeMap[inputText];
+			userCode = codeMap[inputText];
 			
-			if(string == undefined){
-				string = "INCAPABLE DE TROUVER";
+			if(userCode == undefined){
+				userCode = "! INCAPABLE DE TROUVER !";
 			}
 			
 			document.querySelector("div#input").style.display = "none";
@@ -149,8 +144,8 @@ window.addEventListener("keypress", (e) => {
 		document.querySelector("div#input>input").focus();
 		
 	}
-	else if(string != undefined && e.key !== "Enter"){
-		string = undefined;
+	else if(userCode != undefined && e.key !== "Enter"){
+		userCode = undefined;
 	}
 	
 });
