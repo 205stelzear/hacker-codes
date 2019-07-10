@@ -1,7 +1,7 @@
 var c = document.querySelector("canvas");
 var ctx = c.getContext("2d");
 
-var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 charset = charset.split("");
 
 var font_size = 18;
