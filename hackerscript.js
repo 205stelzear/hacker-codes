@@ -49,7 +49,9 @@ function draw(){
 	ctx.fillStyle = "rgba(0, 0, 0, 0.09)";
 	ctx.fillRect(0, 0, c.width, c.height);
 	
-	ctx.fillStyle = "#0F0"; //green text
+	var textColor = string == "INCAPABLE DE TROUVER" ? "#c10000" : "#0F0";
+	
+	ctx.fillStyle = textColor; //green text
 	ctx.font = font_size + "px monospace";
 	
 	var dropsMiddle = (drops.length % 2 == 0 ? drops.length : drops.length - 1) / 2;
@@ -97,6 +99,18 @@ function draw(){
 
 var interval = setInterval(draw, 50);
 
+var codeMap;
+
+var xobj = new XMLHttpRequest();
+xobj.overrideMimeType("application/json");
+xobj.open('GET', './codes.json', true);
+xobj.onreadystatechange = function () {
+	if (xobj.readyState == 4 && xobj.status == "200") {
+		codeMap = JSON.parse(xobj.responseText);
+	}
+};
+xobj.send(null);
+
 function codeInput(e){
 	
 	if(event.key === "Enter"){
@@ -107,11 +121,21 @@ function codeInput(e){
 			
 			e.value = "";
 			
-			string = inputText;
+			string = codeMap[inputText];
+			
+			if(string == undefined){
+				string = "INCAPABLE DE TROUVER";
+			}
 			
 			document.querySelector("div#input").style.display = "none";
 			
 		}
+		
+	}
+	else if(event.key === "Escape"){
+		
+		e.value = "";
+		document.querySelector("div#input").style.display = "none";
 		
 	}
 	
