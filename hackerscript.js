@@ -106,6 +106,8 @@ fetch("./codes.json")
 	.then(response => response.json())
 	.then(parsed => codeMap = parsed);
 
+var canEnter = true;
+
 function codeInput(e){
 	
 	if(event.key === "Enter"){
@@ -124,6 +126,9 @@ function codeInput(e){
 			
 			document.querySelector("div#input").style.display = "none";
 			
+			canEnter = false;
+			setTimeout(() => canEnter = true, 1000);
+			
 		}
 		
 	}
@@ -140,8 +145,10 @@ window.addEventListener("keypress", (e) => {
 	
 	if(e.srcElement.nodeName.toLowerCase() != "input" && e.key === "Enter"){
 		
-		document.querySelector("div#input").style.display = "";
-		document.querySelector("div#input>input").focus();
+		if(canEnter){
+			document.querySelector("div#input").style.display = "";
+			document.querySelector("div#input>input").focus();
+		}
 		
 	}
 	else if(userCode != undefined && e.key !== "Enter"){
